@@ -16,6 +16,9 @@ VOLUME ['/opt/scripts', '/opt/dist', '/opt/conf']
 
 EXPOSE 5000
 EXPOSE 8080
+EXPOSE 8081
+EXPOSE 80
+EXPOSE 443
 
 # Consult the README.md (https://github.com/nicc777/flask-prod-docker) for an 
 # explanation of all the environment variables
