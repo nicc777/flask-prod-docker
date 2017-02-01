@@ -58,7 +58,7 @@ else
 		echo "Setting up custom site and restarting nginx"
 		# rm -vf /etc/nginx/sites-enabled/*
 		# ln -s UWSGI_SITE_CONF /etc/nginx/sites-enabled/app.conf
-		# service nginx restart
+		service nginx restart
 	else
 		echo "UWSGI_SITE_CONF file does not exist - falling back to default site"
 	fi
