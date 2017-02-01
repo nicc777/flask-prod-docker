@@ -61,6 +61,7 @@ else
 		service nginx restart
 	else
 		echo "UWSGI_SITE_CONF file does not exist - falling back to default site"
+		service nginx restart
 	fi
 fi
 
