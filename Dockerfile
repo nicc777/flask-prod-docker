@@ -6,6 +6,7 @@ LABEL Description="A container for the production hosting of a flask application
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install libterm-readline-perl-perl apt-utils -y
 RUN apt-get install -y python3 python3-pip python3-virtualenv mlocate nginx
+RUN pip3 install --upgrade pip
 RUN pip3 install awscli flask boto3 uwsgi
 
 RUN mkdir -p /opt/scripts /opt/dist /opt/conf

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-updatedb
-
 #######################################
 #
 # INSTALL APP
@@ -22,6 +20,9 @@ else
 	fi
 fi
 
+updatedb
+updatedb
+
 #######################################
 #
 # PREP UWSGI
@@ -36,6 +37,7 @@ else
 	if [ -e $UWSGI_CONF ]
 	then
 
+		APPLICATION_SCRIP_NAME2=app.py
 		###
 		### SETUP APPLICATION_SCRIP_NAME
 		###
@@ -86,6 +88,7 @@ else
 
 		echo "Running uwsgi --ini $UWSGI_CONF in the backgroun"
 		export R1=$(echo $APPLICATION_SCRIP_NAME2 | sed -e 's_/_\\/_g')
+		echo R1=$R1
 		sed -i -e "s/APPLICATIONSCRIPNAME/$R1/" $UWSGI_CONF
 		sed -i -e "s/APPLICATIONCALLABLENAME/$APPLICATION_CALLABLE_NAME/g" $UWSGI_CONF
 		sed -i -e "s/UWSGIPROCESSES/$UWSGI_PROCESSES/g" $UWSGI_CONF
@@ -113,7 +116,7 @@ else
 	then
 		echo "Setting up custom site and restarting nginx"
 		rm -vf /etc/nginx/sites-enabled/*
-		ln -s UWSGI_SITE_CONF /etc/nginx/sites-enabled/app.conf
+		ln -s $UWSGI_SITE_CONF /etc/nginx/sites-enabled/app.conf
 		service nginx restart
 	else
 		echo "UWSGI_SITE_CONF file does not exist - falling back to default site"

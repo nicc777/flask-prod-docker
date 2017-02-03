@@ -54,8 +54,8 @@ You can run the following for a quick test (assuming you have cloned the reposit
 	$ cd example
 	$ python3 setup.py sdist
 	$ docker run -ti --rm                           \
-	-v "conf/:/opt/conf"                            \
-	-v "dist/:/opt/dist"                            \
+	-v "$PWD/conf:/opt/conf"                        \
+	-v "$PWD/dist/:/opt/dist"                       \
 	-e "APPLICATION_SCRIP_NAME=app1.py"             \
 	-e "APPLICATION_CALLABLE_NAME=app"              \
 	-e "UWSGI_CONF=/opt/conf/uwsgi.ini"             \
