@@ -1,6 +1,14 @@
 # Flask Production Docker Container
 
-The basics are now working...
+## What is this...
+
+I experiment a lot so I needed an easy way to get [Flask](http://flask.pocoo.org/) applications ready for more production like environments, using [nginx](https://www.nginx.com/) to reverse proxy requests to the flask application hosted via [uwsgi](https://uwsgi-docs.readthedocs.io/en/latest/).
+
+Therefore, the docker container will serve the following:
+
+	nginx (port 80) --> uwsgi (port 8080) --> your flask application
+
+## AWS
 
 I use AWS a lot so my example is AWS ready in that you can set the required keys.
 
@@ -69,7 +77,7 @@ You can run the following for a quick test (assuming you have cloned the reposit
 	-e "UWSGI_CONF=/opt/conf/uwsgi.ini"             \
 	-e "UWSGI_SITE_CONF=/opt/conf/app.conf"         \
 	-e "APP_DIST=/opt/dist/flask-app-0.0.1.tar.gz"  \
-	-p 127.0.0.1:8080:8080                          \
+	-p 127.0.0.1:8080:80                            \
 	flask-prod-docker
 
 Finally, in another terminal:
