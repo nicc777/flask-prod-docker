@@ -20,6 +20,8 @@ Using docker:
 * `APP_DIST` The flask application package to install `default=/opt/dist/app.tar.gz`
 * `UWSGI_CONF` location of your uwsgi ini file `default=/opt/conf/app.ini`
 * `UWSGI_SITE_CONF` location of the nginx based configuration for the uwsgi site `default=/opt/conf/app.conf`
+* `UWSGI_PROCESSES` number of uwsgi processes `default=4`
+* `UWSGI_THREADS` number of uwsgi threads `default=2`
 * `APPLICATION_SCRIP_NAME` will be used to set `FLASK_APP` in `start.sh` and used to set the application in the uwsgi ini file `default=app.py`
 * `APPLICATION_CALLABLE_NAME` the name of the callable application. in most cases `app` or `application` will work `default=app`
 
@@ -28,12 +30,37 @@ Using docker:
 
 NOTE: Still busy working on the example...
 
+Example uwsgi ini file content - also see `example/conf/uwsgi.ini`:
+
+	[uwsgi]
+	socket = 127.0.0.1:8080
+	wsgi-file = APPLICATIONSCRIPNAME
+	callable = APPLICATIONCALLABLENAME
+	processes = UWSGIPROCESSES
+	threads = UWSGITHREADS
+	stats = 127.0.0.1:9191
+
+Example nginx conf file content - also see `$ cat example/conf/app.conf`: 
+
+	server {
+	  location / {
+	    include uwsgi_params;
+	    uwsgi_pass 127.0.0.1:8080;
+	  }
+	}
+
 You can run the following for a quick test (assuming you have cloned the repository)
 
 	$ cd example
 	$ python3 setup.py sdist
-	$ docker run -ti --rm \
-	-e "APPLICATION_SCRIP_NAME=app1.py" \
-	-p 127.0.0.1:8080:8080 \
+	$ docker run -ti --rm                           \
+	-v "conf/:/opt/conf"                            \
+	-v "dist/:/opt/dist"                            \
+	-e "APPLICATION_SCRIP_NAME=app1.py"             \
+	-e "APPLICATION_CALLABLE_NAME=app"              \
+	-e "UWSGI_CONF=/opt/conf/uwsgi.ini"             \
+	-e "UWSGI_SITE_CONF=/opt/conf/app.conf"         \
+	-e "APP_DIST=/opt/dist/flask-app-0.0.1.tar.gz"  \
+	-p 127.0.0.1:8080:8080                          \
 	flask-prod-docker
 
