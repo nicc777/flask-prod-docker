@@ -30,6 +30,11 @@ Using docker:
 
 NOTE: Still busy working on the example...
 
+First, lets prepare a place to temporarily store our exaple configs:
+
+	$ mkdir -p test/conf
+	$ cp -vf example/conf/* test/conf/
+
 Example uwsgi ini file content - also see `example/conf/uwsgi.ini`:
 
 	[uwsgi]
@@ -53,9 +58,10 @@ You can run the following for a quick test (assuming you have cloned the reposit
 
 	$ cd example
 	$ python3 setup.py sdist
+	$ cd ../test
 	$ docker run -ti --rm                           \
 	-v "$PWD/conf:/opt/conf"                        \
-	-v "$PWD/dist/:/opt/dist"                       \
+	-v "$PWD/../example/dist/:/opt/dist"            \
 	-e "APPLICATION_SCRIP_NAME=app1.py"             \
 	-e "APPLICATION_CALLABLE_NAME=app"              \
 	-e "UWSGI_CONF=/opt/conf/uwsgi.ini"             \
