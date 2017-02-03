@@ -1,8 +1,12 @@
 # Flask Production Docker Container
 
-Just started with the project - will update the README in a couple of days
+The basics are now working...
 
-# Building 
+I use AWS a lot so my example is AWS ready in that you can set the required keys.
+
+The AWS command line utilities as well as [boto3](https://boto3.readthedocs.io/en/latest/) is also installed.
+
+# Building
 
 Using docker:
 
@@ -27,8 +31,6 @@ Using docker:
 
 
 # Using the example
-
-NOTE: Still busy working on the example...
 
 First, lets prepare a place to temporarily store our exaple configs:
 
@@ -69,4 +71,20 @@ You can run the following for a quick test (assuming you have cloned the reposit
 	-e "APP_DIST=/opt/dist/flask-app-0.0.1.tar.gz"  \
 	-p 127.0.0.1:8080:8080                          \
 	flask-prod-docker
+
+Finally, in another terminal:
+
+	$ curl http://127.0.0.1:8080/
+	Hello, World!
+
+In your docker container terminal you should see:
+
+	Installing /opt/dist/flask-app-0.0.1.tar.gz
+	   .
+	   .
+	   .
+	*** Stats server enabled on 127.0.0.1:9191 fd: 15 ***
+	                                                                                                                        [ OK ]
+	READY
+	[pid: 65|app: 0|req: 1/1] 172.17.0.1 () {32 vars in 340 bytes} [Fri Feb  3 03:49:45 2017] GET / => generated 13 bytes in 11 msecs (HTTP/1.1 200) 2 headers in 79 bytes (1 switches on core 0)
 
