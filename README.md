@@ -76,7 +76,13 @@ You can now create your own flask application!
 * `UWSGI_THREADS` number of uwsgi threads `default=2`
 * `APPLICATION_SCRIP_NAME` will be used to set `FLASK_APP` in `start.sh` and used to set the application in the uwsgi ini file `default=app.py`
 * `APPLICATION_CALLABLE_NAME` the name of the callable application. in most cases `app` or `application` will work `default=app`
+* `EXTRA_ENV` path to a script that will be loaded with `. $EXTRA_ENV` - handy for loading extra environment variable your script may require.
 
+## Example content for `EXTRA_ENV` file
+
+The following can be seen as a rough example:
+
+    export FLASK_DEBUG=1
 
 # Configuration files
 
@@ -98,6 +104,16 @@ The above example is considered the minimum you should have in your config. Note
 * APPLICATIONCALLABLENAME
 * UWSGIPROCESSES
 * UWSGITHREADS
+
+### Logging
+
+Add the following lines to enable logging to file:
+
+    req-logger = file:/tmp/reqlog
+    logger = file:/tmp/errlog
+    logger = internalservererror file:/tmp/errors
+
+You can then connect to a terminal of the running container to view the log files.
 
 ## Example nginx conf file
 

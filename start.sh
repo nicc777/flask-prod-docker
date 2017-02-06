@@ -1,4 +1,24 @@
-#!/bin/sh
+#!/bin/bash
+
+#######################################
+#
+# EXTRA ENVIRONMENT VARIABLES
+#
+#######################################
+
+if [ -z ${EXTRA_ENV+x} ]
+then
+	echo "EXTRA_ENV is not set - not loading extra environment variables"
+else
+	echo "EXTRA_ENV is set to $EXTRA_ENV - attempting to load extra environment variables"
+	if [ -e $EXTRA_ENV ]
+	then
+		echo "Loading extra environment variables from $EXTRA_ENV"
+		. $EXTRA_ENV
+	else
+		echo "Extra environment file does not exist - SKIPPING"
+	fi
+fi
 
 #######################################
 #
@@ -9,18 +29,25 @@
 if [ -z ${APP_DIST+x} ]
 then 
 	echo "APP_DIST is not set - not installing app" 
-else 
-	echo "APP_DIST is set to $APP_DIST - attempting to install using pip3"
-	if [ -e $APP_DIST ]
-	then
-		echo "Installing $APP_DIST"
-		pip3 install $APP_DIST
-	else
-		echo "Installation file does not exist - SKIPPING"
-	fi
+else
+    COUNT=$(grep -o " " <<< "$APP_DIST" | wc -l)
+    if (( "$COUNT" > "0" ))
+    then
+        echo "APP_DIST is set to $APP_DIST - attempting to install using pip3"
+        pip3 install $APP_DIST
+    else
+        echo "APP_DIST is set to $APP_DIST - attempting to install using pip3"
+	    if [ -e $APP_DIST ]
+	    then
+		    echo "Installing $APP_DIST"
+		    pip3 install $APP_DIST
+	    else
+		    echo "Installation file does not exist - SKIPPING"
+	    fi
+    fi
+
 fi
 
-updatedb
 updatedb
 
 #######################################
