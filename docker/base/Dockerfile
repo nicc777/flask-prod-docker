@@ -9,14 +9,3 @@ RUN apt-get install libterm-readline-perl-perl apt-utils -y
 RUN apt-get install -y python3 python3-pip
 RUN pip3 install Flask Flask-Cognito gunicorn
 
-# Install the app
-WORKDIR /usr/src/app
-RUN mkdir dist
-COPY dist/*.tar.gz ./dist/
-RUN pip3 install dist/*.tar.gz
-
-# Operational Configuration
-EXPOSE 8080
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8080", "--access-logfile", "-", "demo_api.app:app"]
-
-
