@@ -8,6 +8,22 @@ I experiment a lot so I needed an easy way to get [Flask](http://flask.pocoo.org
 
 Since I use a lot of [AWS Services](https://aws.amazon.com), especially [Cognito for user authentication](https://aws.amazon.com/cognito/), I have updated this project to reflect that integration.
 
+## Requirements for Development on Local Machine
+
+You should have the following installed on your local system:
+
+* AWS CLI
+* Python 3x, including pip (with some Linux distro's this may not come pre-installed)
+* Terraform
+
+Once you have cloned the Git repository, it's a good idea to set-up a Python virtual environment ad install some pre-requisites:
+
+```bash
+$ python3 -m venv venv
+$ source venv/bin/activate
+(venv) $ pip3 install pylint boto3
+```
+
 ## Deployment
 
 The Docker image will be made available in the public Docker repository... `TODO`
