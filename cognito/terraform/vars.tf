@@ -1,5 +1,5 @@
 variable "AWS_REGION" {
-  default = "eu-west-2"
+  default = "us-east-1"
 }
 
 variable "COGNITO_DOMAIN_NAME" {

@@ -4,6 +4,6 @@ terraform {
     encrypt = true
     key    = "poc/flask-prod-docker/terraform.tfstate"
     dynamodb_table = "terraform_state"
-    region = "eu-west-2"
+    region = "us-east-1"
   }
 }
