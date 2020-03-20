@@ -3,6 +3,16 @@ MAINTAINER Nico Coetzee <nicc777@gmail.com>
 
 LABEL Description="A container for the production hosting of a flask application" Vendor="none" Version="0.1"
 
+# Envieonment
+ENV SECRET_KEY "Not a very strong secret"
+ENV COGNITO_CLIENT_ID not-set
+ENV COGNITO_CLIENT_SECRET not-set
+ENV COGNITO_DOMAIN not-set
+ENV COGNITO_LOGIN_CALLBACK_URL not-set
+ENV COGNITO_LOGOUT_CALLBACK_URL not-set
+ENV COGNITO_SCOPE "openid+profile"
+ENV COGNITO_STATE "DEMO-STATE"
+
 # Install the app
 WORKDIR /usr/src/app
 RUN mkdir dist

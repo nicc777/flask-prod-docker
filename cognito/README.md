@@ -49,3 +49,42 @@ user_pool_id = us-east-1_xxxxx
 ```
 
 __Note__: Take note of the `Outputs` as you will need this for your Flask application.
+
+At any point, if you need to get the output again, run the following in the `terraform` directory:
+
+```bash
+(venv) $ terraform show -json | python3 -m json.tool 
+{
+    "format_version": "0.1",
+    "terraform_version": "0.12.24",
+    "values": {
+        "outputs": {
+            "app_1_id": {
+                "sensitive": false,
+                "value": "xxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            "app_1_secret": {
+                "sensitive": false,
+                "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            "user_pool_arn": {
+                "sensitive": false,
+                "value": "arn:aws:cognito-idp:us-east-1:xxxxx:userpool/us-east-1_xxxxx"
+            },
+            "user_pool_domain_name": {
+                "sensitive": false,
+                "value": "https://demo-pool-domain-xxxxx.auth.eu-west-2.amazoncognito.com"
+            },
+            "user_pool_endpoint": {
+                "sensitive": false,
+                "value": "cognito-idp.us-east-1.amazonaws.com/us-east-1_xxxxx"
+            },
+            "user_pool_id": {
+                "sensitive": false,
+                "value": "us-east-1_xxxxx"
+            }
+        },
+        .....more output.....
+    }
+}
+```

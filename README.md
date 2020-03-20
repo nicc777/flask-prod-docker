@@ -29,7 +29,20 @@ Once you are done, ensure you are once again in the project root directory.
 
 ## Testing Locally
 
-First, you will need to build the base docker image. It uses the official Docker Ubuntu image and installs the required packages so that you don't have to do it every time when building the application Docker image. This is typically a once of exercise on your local machine:
+Assuming you have prepared the Cognito setup (see [the Cognito REDME](cognito/README.md)), set your environment variables:
+
+```bash
+(venv) $ export SECRET_KEY "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+(venv) $ export COGNITO_CLIENT_ID="xxxxxxxxxx"
+(venv) $ export COGNITO_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+(venv) $ export COGNITO_DOMAIN="xxxxxxxxxx"
+(venv) $ export COGNITO_LOGIN_CALLBACK_URL="http://localhost:8080/cognito_callback"
+(venv) $ export COGNITO_LOGOUT_CALLBACK_URL="http://localhost:8080/cognito_logout_callback"
+(venv) $ export COGNITO_SCOPE "openid+profile"
+(venv) $ export COGNITO_STATE "DEMO-STATE"
+```
+
+Then, you will need to build the base docker image. It uses the official Docker Ubuntu image and installs the required packages so that you don't have to do it every time when building the application Docker image. This is typically a once of exercise on your local machine:
 
 ```bash
 $ docker image rm example-flask-cognito-base
@@ -47,7 +60,15 @@ $ ./build.sh
 Finally, test:
 
 ```bash
-$ docker run -p 127.0.0.1:8080:8080 --name example example-flask-cognito-app
+(venv) $ docker run -p 127.0.0.1:8080:8080                     \
+--name example                                                 \
+-e SECRET_KEY="$SECRET_KEY"                                    \
+-e COGNITO_CLIENT_ID="$COGNITO_CLIENT_ID"                      \
+-e COGNITO_CLIENT_SECRET="$COGNITO_CLIENT_SECRET"              \
+-e COGNITO_DOMAIN="$COGNITO_DOMAIN"                            \
+-e COGNITO_LOGIN_CALLBACK_URL="$COGNITO_LOGIN_CALLBACK_URL"    \
+-e COGNITO_LOGOUT_CALLBACK_URL="$COGNITO_LOGOUT_CALLBACK_URL"  \
+example-flask-cognito-app
 ```
 
 Point your browser to [http://127.0.0.1:8080/](http://127.0.0.1:8080/)
