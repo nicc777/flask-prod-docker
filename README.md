@@ -4,8 +4,6 @@
 
 I experiment a lot so I needed an easy way to get [Flask](http://flask.pocoo.org/) applications ready for more production like environments.
 
-## AWS
-
 Since I use a lot of [AWS Services](https://aws.amazon.com), especially [Cognito for user authentication](https://aws.amazon.com/cognito/), I have updated this project to reflect that integration.
 
 ## Requirements for Development on Local Machine
@@ -19,18 +17,15 @@ You should have the following installed on your local system:
 Once you have cloned the Git repository, it's a good idea to set-up a Python virtual environment ad install some pre-requisites:
 
 ```bash
+$ cd flask-prod-docker
 $ python3 -m venv venv
 $ source venv/bin/activate
 (venv) $ pip3 install pylint boto3
 ```
 
-## Deployment
+Next, reefer to the [Cognito README](cognito/README.md) for instructions on preparing the Cognito User Pool.
 
-The Docker image will be made available in the public Docker repository... `TODO`
-
-# Usage
-
-Coming shortly...
+Once you are done, ensure you are once again in the project root directory.
 
 ## Testing Locally
 

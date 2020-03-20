@@ -25,4 +25,27 @@ _Note_: Use `./prepare_terraform_backend.py -h` for more detailed usage informat
 
 ## Usage
 
-`TODO`
+First, check that the Terraform execution plan should work and create an execution plan file:
+
+```bash
+(venv) $ cd terraform
+(venv) $ terraform plan -out=exec_plan
+```
+
+When there is no errors and you are happy with the output, implement the plan:
+
+```bash
+(venv) $ terraform apply exec_plan
+...lots of output
+
+Outputs:
+           
+app_1_id = xxxxxxxxxxxxxxxxxxxxxxxxxx
+app_1_secret = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+user_pool_arn = arn:aws:cognito-idp:us-east-1:xxxxx:userpool/us-east-1_xxxxx
+user_pool_domain_name = https://demo-pool-domain-xxxxx.auth.eu-west-2.amazoncognito.com
+user_pool_endpoint = cognito-idp.us-east-1.amazonaws.com/us-east-1_xxxxx
+user_pool_id = us-east-1_xxxxx
+```
+
+__Note__: Take note of the `Outputs` as you will need this for your Flask application.

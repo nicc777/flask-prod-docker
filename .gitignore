@@ -109,6 +109,6 @@ venv.bak/
 .mypy_cache/
 .vscode/
 .terraform/
-backend.tf
-
+cognito/terraform/backend.tf
+cognito/terraform/exec_plan
 

@@ -49,5 +49,5 @@ output "user_pool_arn" {
 }
 
 output "user_pool_domain_name" {
-    value = join("", ["https://", "${var.COGNITO_COMAIN_NAME}", ".auth.eu-west-2.amazoncognito.com"])
+    value = join("", ["https://", "${var.COGNITO_DOMAIN_NAME}", ".auth.eu-west-2.amazoncognito.com"])
 }
