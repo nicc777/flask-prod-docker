@@ -135,6 +135,7 @@ def get_all_s3_buckets()->list:
                 buckets.append(bucket['Name'])
     except:
         traceback.print_exc()
+    print('info: retrieved {} buckets'.format(len(buckets)))
     return buckets
 
 
@@ -159,6 +160,71 @@ def create_s3_bucket(s3_bucket_name: str)->bool:
     return result
 
 
+def get_all_dynamodb_tables(start_table_name: str=None)->list:
+    tables = list()
+    try:
+        client = boto3.client('dynamodb')
+        if start_table_name is not None:
+            response = client.list_tables(
+                ExclusiveStartTableName=start_table_name,
+                Limit=100
+            )
+            start_table_name = None
+            if 'TableNames' in response:
+                for table_name in response['TableNames']:
+                    tables.append(table_name)
+            
+            if 'LastEvaluatedTableName' in response:
+                if response['LastEvaluatedTableName'] is not None:
+                    start_table_name = response['LastEvaluatedTableName']
+        else:
+            response = client.list_tables(Limit=100)
+            start_table_name = None
+            if 'TableNames' in response:
+                for table_name in response['TableNames']:
+                    tables.append(table_name)
+            
+            if 'LastEvaluatedTableName' in response:
+                if response['LastEvaluatedTableName'] is not None:
+                    start_table_name = response['LastEvaluatedTableName']
+        if start_table_name is not None:
+            tables += get_all_dynamodb_tables(start_table_name=start_table_name)
+    except:
+        traceback.print_exc()
+    print('info: retrieved {} tables'.format(len(tables)))
+    return tables
+
+
+def create_dynamodb_table(table_name: str)->bool:
+    result = False
+    try:
+        if table_name not in get_all_dynamodb_tables():
+            dynamodb = boto3.resource('dynamodb')
+            table = dynamodb.create_table(
+                AttributeDefinitions=[
+                    {
+                        'AttributeName': 'LockID',
+                        'AttributeType': 'S'
+                    },
+                ],
+                TableName=table_name,
+                KeySchema=[
+                    {
+                        'AttributeName': 'LockID',
+                        'KeyType': 'HASH'
+                    },
+                ],
+                BillingMode='PAY_PER_REQUEST'
+            )
+            table.meta.client.get_waiter('table_exists').wait(TableName=table_name)
+        if table_name in get_all_dynamodb_tables():
+            result = True
+            print('info: DynamoDB table "{}" created'.format(table_name))
+    except:
+        traceback.print_exc()
+    return result
+
+
 if __name__ == '__main__':
     print('START')
     bucket_name = args.s3
@@ -172,5 +238,8 @@ if __name__ == '__main__':
             sys.exit(-1)
     if create_s3_bucket(s3_bucket_name=bucket_name) is False:
         print('critical: failed to create a s3 bucket. quiting.')
+        sys.exit(-1)
+    if create_dynamodb_table(table_name=dynamodb_table_name) is False:
+        print('critical: failed to create a DynamoDB table. quiting.')
         sys.exit(-1)
     print('DONE')
