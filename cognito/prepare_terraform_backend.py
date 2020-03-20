@@ -4,6 +4,7 @@ import traceback
 import random
 import argparse
 import sys
+import os
 
 
 def generate_s3_bucket_name(base_name: str='terraform-state-')->str:
@@ -225,6 +226,32 @@ def create_dynamodb_table(table_name: str)->bool:
     return result
 
 
+def setup_backend_file(
+    s3_bucket_name: str,
+    dynamodb_table_name: str,
+    filename: str='terraform/backend.tf',
+    template: str='terraform/backend.TENPLATE',
+)->bool:
+    result = False
+    try:
+        backend_content = ''
+        with open(template) as f:
+            backend_content = f.read()
+        backend_content = backend_content.replace('__STATE_BUCKET_NAME__', s3_bucket_name)
+        backend_content = backend_content.replace('__DYNAMODB_TABLE_NAME__', dynamodb_table_name)
+        if os.path.exists(filename):
+            print('info: removing previous file: "{}"'.format(filename))
+            os.unlink(filename)
+        with open(filename, 'w') as f:
+            f.write(backend_content)
+        if os.path.exists(filename):
+            result = True
+            print('info: created "{}'.format(filename))
+    except:
+        traceback.print_exc()
+    return result
+
+
 if __name__ == '__main__':
     print('START')
     bucket_name = args.s3
@@ -241,5 +268,13 @@ if __name__ == '__main__':
         sys.exit(-1)
     if create_dynamodb_table(table_name=dynamodb_table_name) is False:
         print('critical: failed to create a DynamoDB table. quiting.')
+        sys.exit(-1)
+    if setup_backend_file(
+        s3_bucket_name=bucket_name,
+        dynamodb_table_name=dynamodb_table_name,
+        filename='terraform/backend.tf',
+        template='terraform/backend.TEMPLATE'
+    ) is False:
+        print('critical: failed to create a Terraform backend file. quiting.')
         sys.exit(-1)
     print('DONE')

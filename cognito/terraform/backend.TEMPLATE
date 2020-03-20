@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket = "terraform-state-k0ioo07m"
+    bucket = "__STATE_BUCKET_NAME__"
     encrypt = true
     key    = "poc/flask-prod-docker/terraform.tfstate"
-    dynamodb_table = "terraform_state"
+    dynamodb_table = "__DYNAMODB_TABLE_NAME__"
     region = "eu-west-2"
   }
 }
