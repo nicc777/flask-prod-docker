@@ -88,3 +88,9 @@ At any point, if you need to get the output again, run the following in the `ter
     }
 }
 ```
+
+__IMPORTANT FINAL STEP__
+
+The one thing that Terraform doesn't do is to enable the Cognito User Pool for the client - you have to do this on the console (I could not yet find an API call to do this either).
+
+![Enable Cognito User Pool for the Client](cognito_enable_identity_providers.png)

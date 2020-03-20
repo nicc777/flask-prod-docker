@@ -145,14 +145,19 @@ def cognito_callback():
                     L.info(message='json_response={}'.format(json_response))
 
                     # Validate token
-                    verified_claims: dict = cognitojwt.decode(
-                        json_response['id_token'],
-                        os.getenv('COGNITO_REGION', 'us-east-1'),
-                        os.getenv('COGNITO_USER_POOL_ID', 'not-set'),
-                        app_client_id=cognito_client_id,  
-                        testmode=False  
-                    )
-                    L.info(message='verified_claims={}'.format(verified_claims))
+                    verified_claims = dict()
+                    try:
+                        verified_claims: dict = cognitojwt.decode(
+                            json_response['access_token'],
+                            os.getenv('COGNITO_REGION', 'us-east-1'),
+                            os.getenv('COGNITO_USER_POOL_ID', 'not-set'),
+                            app_client_id=cognito_client_id,  
+                            testmode=False  
+                        )
+                        L.info(message='verified_claims={}'.format(verified_claims))
+                    except:
+                        L.error(message='EXCEPTION: {}'.format(traceback.format_exc()))
+                        L.error(message='TOKENS ARE UNVERIFIED')
 
                     user_info_target_url = '{}/oauth2/userInfo'.format(cognito_domain)
                     user_info_response = requests.get(
@@ -161,6 +166,7 @@ def cognito_callback():
                             'Authorization': 'Bearer {}'.format(json_response['access_token']),
                         }
                     )
+                    L.info(message='user_info_response={}'.format(user_info_response))
                     if user_info_response.status_code == 200:
                         user_info_json_response = user_info_response.json()
                         L.info(message='user_info_json_response={}'.format(user_info_json_response))

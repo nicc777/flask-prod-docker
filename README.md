@@ -29,7 +29,7 @@ Once you are done, ensure you are once again in the project root directory.
 
 ## Testing Locally
 
-Assuming you have prepared the Cognito setup (see [the Cognito REDME](cognito/README.md)), set your environment variables:
+Assuming you have prepared the Cognito setup (see [the Cognito README](cognito/README.md)), set your environment variables:
 
 ```bash
 (venv) $ export SECRET_KEY "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -38,9 +38,9 @@ Assuming you have prepared the Cognito setup (see [the Cognito REDME](cognito/RE
 (venv) $ export COGNITO_DOMAIN="xxxxxxxxxx"
 (venv) $ export COGNITO_LOGIN_CALLBACK_URL="http://localhost:8080/cognito_callback"
 (venv) $ export COGNITO_LOGOUT_CALLBACK_URL="http://localhost:8080/cognito_logout_callback"
-(venv) $ export COGNITO_SCOPE "openid+profile"
-(venv) $ export COGNITO_STATE "DEMO-STATE"
 ```
+
+_Just for clarity_: The `COGNITO_DOMAIN` is the value of `user_pool_domain_name` you obtained from the Terraform output. The other values should be self explanatory.
 
 Then, you will need to build the base docker image. It uses the official Docker Ubuntu image and installs the required packages so that you don't have to do it every time when building the application Docker image. This is typically a once of exercise on your local machine:
 
