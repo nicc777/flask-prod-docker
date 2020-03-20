@@ -14,6 +14,8 @@ Assuming all the requirements (see root [README](../README.md)) are met, you can
 
 _Note_: You may need to set your AWS credentials. The first two commands is for setting your AWS administrative credentials.
 
+_Note_: Use `./prepare_terraform_backend.py -h` for more detailed usage information, for example, to specify a specific S3 bucket name
+
 ```
 (venv) $ export AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxxxx
 (venv) $ export AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxx

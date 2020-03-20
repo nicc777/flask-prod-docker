@@ -18,7 +18,7 @@
           "dynamodb:PutItem",
           "dynamodb:DeleteItem"
         ],
-        "Resource": "arn:aws:dynamodb:*:*:table/mytable"
+        "Resource": "arn:aws:dynamodb:*:*:table/__DYNAMODB_TABLE_NAME__"
       }
     ]
   }

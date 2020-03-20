@@ -2,11 +2,13 @@
 import boto3
 import traceback
 import random
+import argparse
+import sys
 
 
 def generate_s3_bucket_name(base_name: str='terraform-state-')->str:
     bucket_name = base_name
-    chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+    chars = 'abcdefghijklmnopqrstuvwxyz1234567890'
     random_bit = ''
     while len(random_bit) < 8:
         random_bit = '{}{}'.format(
@@ -15,6 +17,24 @@ def generate_s3_bucket_name(base_name: str='terraform-state-')->str:
         )
     bucket_name = '{}{}'.format(bucket_name, random_bit)
     return bucket_name
+
+
+parser = argparse.ArgumentParser(description='Prepare the AWS components for the Terraform backend')
+parser.add_argument(
+    '--s3',
+    metavar='NAME',
+    type=str,
+    help='The name of the S3 bucket to use.',
+    default=generate_s3_bucket_name()
+)
+parser.add_argument(
+    '--dynamodb',
+    metavar='NAME',
+    type=str,
+    help='The name of the DynamoDB table to use.',
+    default='terraform_state'
+)
+args = parser.parse_args()
 
 
 def get_all_iam_policies(marker: str=None)->list:
@@ -64,41 +84,93 @@ def check_policy(policy_name: str='terraform-backend-policy')->bool:
     return False
 
 
+def load_policy_file(file_name: str='backend_policy.json')->str:
+    data = None
+    try:
+        with open(file_name) as f:
+            data = f.read()
+    except:
+        traceback.print_exc()
+    if data is None:
+        raise Exception('Could not load policy data')
+    return data
+
+
 def create_policy(
     bucket_name: str,
     dynamodb_table_name: str,
-    policy_name: str='terraform-backend-policy'
+    policy_name: str='terraform-backend-policy',
+    local_policy_filename: str='backend_policy.json'
 )->bool:
     print('info: creating policy "{}"'.format(policy_name))
+    policy_text = load_policy_file(file_name=local_policy_filename)
+    policy_text = policy_text.replace('__STATE_BUCKET_NAME__', bucket_name)
+    policy_text = policy_text.replace('__DYNAMODB_TABLE_NAME__', dynamodb_table_name)
     try:
-        # client = boto3.client('iam')
-        # response = client.create_policy(
-        #     PolicyName=policy_name,
-        #     PolicyDocument='string',
-        #     Description='A policy to enable Terraform to use AWS as a backend.'
-        # )
-        # if 'Policy' in response:
-        #     if 'Arn' in response['Policy']:
-        #         print('info: created policy with ARN "{}"'.format(response['Policy']['Arn']))
-        #     else:
-        #         print('warning: could not determine ARN - something may have gone wrong!')
-        # else:
-        #     print('warning: it does not appear that the policy was created.')
-        pass
+        client = boto3.client('iam')
+        response = client.create_policy(
+            PolicyName=policy_name,
+            PolicyDocument=policy_text,
+            Description='A policy to enable Terraform to use AWS as a backend.'
+        )
+        if 'Policy' in response:
+            if 'Arn' in response['Policy']:
+                print('info: created policy with ARN "{}"'.format(response['Policy']['Arn']))
+            else:
+                print('warning: could not determine ARN - something may have gone wrong!')
+        else:
+            print('warning: it does not appear that the policy was created.')
     except:
         traceback.print_exc()
     return check_policy(policy_name=policy_name)
 
 
+def get_all_s3_buckets()->list:
+    buckets = list()
+    try:
+        client = boto3.client('s3')
+        response = client.list_buckets()
+        if 'Buckets' in response:
+            for bucket in response['Buckets']:
+                buckets.append(bucket['Name'])
+    except:
+        traceback.print_exc()
+    return buckets
+
+
+def create_s3_bucket(s3_bucket_name: str)->bool:
+    result = False
+    try:
+        if s3_bucket_name not in get_all_s3_buckets():
+            client = boto3.client('s3')
+            response = client.create_bucket(
+                ACL='private',
+                Bucket=s3_bucket_name
+            )
+            if 'Location' in response:
+                print('info: s3 location: {}'.format(response['Location']))
+                if s3_bucket_name in get_all_s3_buckets():
+                    result = True
+        else:
+            print('info: s3 bucket "{}" already exists'.format(s3_bucket_name))
+            result = True
+    except:
+        traceback.print_exc()
+    return result
+
 
 if __name__ == '__main__':
     print('START')
-    bucket_name = generate_s3_bucket_name()
-    dynamodb_table_name = 'terraform_state'
+    bucket_name = args.s3
+    dynamodb_table_name = args.dynamodb
+    print('info: bucket_name={}'.format(bucket_name))
+    print('info: dynamodb_table_name={}'.format(dynamodb_table_name))
     print('info: S3 bucket name set to "{}"'.format(bucket_name))
     if check_policy() is False:
         if create_policy(bucket_name=bucket_name, dynamodb_table_name=dynamodb_table_name) is False:
             print('critical: failed to create a policy. quiting.')
-        else:
-            pass
+            sys.exit(-1)
+    if create_s3_bucket(s3_bucket_name=bucket_name) is False:
+        print('critical: failed to create a s3 bucket. quiting.')
+        sys.exit(-1)
     print('DONE')
