@@ -2,128 +2,74 @@
 
 ## What is this...
 
-I experiment a lot so I needed an easy way to get [Flask](http://flask.pocoo.org/) applications ready for more production like environments, using [nginx](https://www.nginx.com/) to reverse proxy requests to the flask application hosted via [uwsgi](https://uwsgi-docs.readthedocs.io/en/latest/).
+I experiment a lot so I needed an easy way to get [Flask](http://flask.pocoo.org/) applications ready for more production like environments.
 
-Therefore, the docker container will serve the following:
+Since I use a lot of [AWS Services](https://aws.amazon.com), especially [Cognito for user authentication](https://aws.amazon.com/cognito/), I have updated this project to reflect that integration.
 
-	nginx (port 80) --> uwsgi (port 8080) --> your flask application
+## Requirements for Development on Local Machine
 
-## AWS
+You should have the following installed on your local system:
 
-I use AWS a lot so my example is AWS ready in that you can set the required keys.
+* AWS CLI
+* Python 3x, including pip (with some Linux distro's this may not come pre-installed)
+* Terraform
 
-The AWS command line utilities as well as [boto3](https://boto3.readthedocs.io/en/latest/) is also installed.
+Once you have cloned the Git repository, it's a good idea to set-up a Python virtual environment ad install some pre-requisites:
 
-# Building
+```bash
+$ cd flask-prod-docker
+$ python3 -m venv venv
+$ source venv/bin/activate
+(venv) $ pip3 install pylint boto3
+```
 
-Using docker:
+Next, reefer to the [Cognito README](cognito/README.md) for instructions on preparing the Cognito User Pool.
 
-	$ docker build --no-cache -t flask-prod-docker:latest .
+Once you are done, ensure you are once again in the project root directory.
 
-# Quick start
+## Testing Locally
 
-Use the following example to quickly run the example:
+Assuming you have prepared the Cognito setup (see [the Cognito README](cognito/README.md)), set your environment variables:
 
-	$ cd /tmp
-	$ git clone https://github.com/nicc777/flask-prod-docker.git
-    $ cd flask-prod-docker/example/
-	$ python3 setup.py sdist
-    $ mkdir -p ../test/conf
-    $ cp -vf conf/* ../test/conf/
-	$ cd ../test
-	$ docker run -ti --rm                           \
-	-v "$PWD/conf:/opt/conf"                        \
-	-v "$PWD/../example/dist/:/opt/dist"            \
-	-e "APPLICATION_SCRIP_NAME=app1.py"             \
-	-e "APPLICATION_CALLABLE_NAME=app"              \
-	-e "UWSGI_CONF=/opt/conf/uwsgi.ini"             \
-	-e "UWSGI_SITE_CONF=/opt/conf/app.conf"         \
-	-e "APP_DIST=/opt/dist/flask-app-0.0.1.tar.gz"  \
-	-p 127.0.0.1:8080:80                            \
-	flask-prod-docker
+```bash
+(venv) $ export SECRET_KEY "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+(venv) $ export COGNITO_CLIENT_ID="xxxxxxxxxx"
+(venv) $ export COGNITO_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+(venv) $ export COGNITO_DOMAIN="xxxxxxxxxx"
+(venv) $ export COGNITO_LOGIN_CALLBACK_URL="http://localhost:8080/cognito_callback"
+(venv) $ export COGNITO_LOGOUT_CALLBACK_URL="http://localhost:8080/cognito_logout_callback"
+```
 
-Finally, in another terminal:
+_Just for clarity_: The `COGNITO_DOMAIN` is the value of `user_pool_domain_name` you obtained from the Terraform output. The other values should be self explanatory.
 
-	$ curl http://127.0.0.1:8080/
-	Hello, World!
+Then, you will need to build the base docker image. It uses the official Docker Ubuntu image and installs the required packages so that you don't have to do it every time when building the application Docker image. This is typically a once of exercise on your local machine:
 
-In your docker container terminal you should see:
+```bash
+$ docker image rm example-flask-cognito-base
+$ cd docker/base
+$ docker build --no-cache -t example-flask-cognito-base .
+$ cd $OLDPWD
+```
 
-	Installing /opt/dist/flask-app-0.0.1.tar.gz
-	   .
-	   .
-	   .
-	*** Stats server enabled on 127.0.0.1:9191 fd: 15 ***
-	                                                                                                                        [ OK ]
-	READY
-	[pid: 65|app: 0|req: 1/1] 172.17.0.1 () {32 vars in 340 bytes} [Fri Feb  3 03:49:45 2017] GET / => generated 13 bytes in 11 msecs (HTTP/1.1 200) 2 headers in 79 bytes (1 switches on core 0)
+Then, as often as you modify your code, build the example app Docker image:
 
-You can now create your own flask application!
+```bash
+$ ./build.sh
+```
 
-# Environment variables
+Finally, test:
 
-* `DEBUG` Setting that will be passed to `FLASK_DEBUG` in the `start.sh` script `default=0`
-* `SYSLOG_SERVER` might be useful for your flask application, otherwise unused `default=127.0.0.1`
-* `SYSLOG_PORT` works with `SYSLOG_SERVER` `default=541`
-* `SYSLOG_LEVEL` works with `SYSLOG_SERVER` `default=ERROR`
-* `AWS_DEFAULT_REGION` available to your app `optional` `default=us-east-1`
-* `AWS_ACCESS_KEY_ID` available to your app `optional` `default=not-set`
-* `AWS_SECRET_ACCESS_KEY` available to your app `optional` `default=not-set`
-* `APP_DIST` The flask application package to install `default=/opt/dist/app.tar.gz`
-* `UWSGI_CONF` location of your uwsgi ini file `default=/opt/conf/app.ini`
-* `UWSGI_SITE_CONF` location of the nginx based configuration for the uwsgi site `default=/opt/conf/app.conf`
-* `UWSGI_PROCESSES` number of uwsgi processes `default=4`
-* `UWSGI_THREADS` number of uwsgi threads `default=2`
-* `APPLICATION_SCRIP_NAME` will be used to set `FLASK_APP` in `start.sh` and used to set the application in the uwsgi ini file `default=app.py`
-* `APPLICATION_CALLABLE_NAME` the name of the callable application. in most cases `app` or `application` will work `default=app`
-* `EXTRA_ENV` path to a script that will be loaded with `. $EXTRA_ENV` - handy for loading extra environment variable your script may require.
+```bash
+(venv) $ docker run -p 127.0.0.1:8080:8080                     \
+--name example                                                 \
+-e SECRET_KEY="$SECRET_KEY"                                    \
+-e COGNITO_CLIENT_ID="$COGNITO_CLIENT_ID"                      \
+-e COGNITO_CLIENT_SECRET="$COGNITO_CLIENT_SECRET"              \
+-e COGNITO_DOMAIN="$COGNITO_DOMAIN"                            \
+-e COGNITO_LOGIN_CALLBACK_URL="$COGNITO_LOGIN_CALLBACK_URL"    \
+-e COGNITO_LOGOUT_CALLBACK_URL="$COGNITO_LOGOUT_CALLBACK_URL"  \
+example-flask-cognito-app
+```
 
-## Example content for `EXTRA_ENV` file
+Point your browser to [http://127.0.0.1:8080/](http://127.0.0.1:8080/)
 
-The following can be seen as a rough example:
-
-    export FLASK_DEBUG=1
-
-# Configuration files
-
-## Example uwsgi ini file
-
-Also see `example/conf/uwsgi.ini`:
-
-	[uwsgi]
-	socket = 127.0.0.1:8080
-	wsgi-file = APPLICATIONSCRIPNAME
-	callable = APPLICATIONCALLABLENAME
-	processes = UWSGIPROCESSES
-	threads = UWSGITHREADS
-	stats = 127.0.0.1:9191
-
-The above example is considered the minimum you should have in your config. Note that the following text will be replaced by the start script:
-
-* APPLICATIONSCRIPNAME
-* APPLICATIONCALLABLENAME
-* UWSGIPROCESSES
-* UWSGITHREADS
-
-### Logging
-
-Add the following lines to enable logging to file:
-
-    req-logger = file:/tmp/reqlog
-    logger = file:/tmp/errlog
-    logger = internalservererror file:/tmp/errors
-
-You can then connect to a terminal of the running container to view the log files.
-
-## Example nginx conf file
-
-Also see `example/conf/app.conf`:
-
-	server {
-	  location / {
-	    include uwsgi_params;
-	    uwsgi_pass 127.0.0.1:8080;
-	  }
-	}
-
-You should not need more than the above, but feel free to add more as needed.
