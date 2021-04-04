@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:groovy-20210325
 MAINTAINER Nico Coetzee <nicc777@gmail.com>
 
 LABEL Description="A container for the production hosting of a flask application" Vendor="none" Version="0.1"
