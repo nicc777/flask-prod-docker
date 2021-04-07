@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:rolling
 
 LABEL Description="A container for the production hosting of a flask application" Vendor="none" Version="0.1"
 
