@@ -42,15 +42,6 @@ Assuming you have prepared the Cognito setup (see [the Cognito README](cognito/R
 
 _Just for clarity_: The `COGNITO_DOMAIN` is the value of `user_pool_domain_name` you obtained from the Terraform output. The other values should be self explanatory.
 
-Then, you will need to build the base docker image. It uses the official Docker Ubuntu image and installs the required packages so that you don't have to do it every time when building the application Docker image. This is typically a once of exercise on your local machine:
-
-```bash
-$ docker image rm example-flask-cognito-base
-$ cd docker/base
-$ docker build --no-cache -t example-flask-cognito-base .
-$ cd $OLDPWD
-```
-
 Then, as often as you modify your code, build the example app Docker image:
 
 ```bash
